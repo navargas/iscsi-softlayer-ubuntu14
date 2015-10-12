@@ -46,7 +46,6 @@ if [ $? -eq 0 ]; then
   rm -f "$CONF".tmp
   rm -f $CONF
   echo $DESTINATION written successfully
-  exit 0
 else
   echo Unable to write $DESTINATION
   exit 4
