@@ -16,7 +16,7 @@ fi
 
 # Download configuration file template
 curl $URL > $CONF
-if [ $? -eq 0 ]; then
+if [ $? -ne 0 ]; then
   echo 'Unable to download config file'
   exit 2
 fi
@@ -28,6 +28,6 @@ if [ $filecheck != $MD5 ]; then
   exit 3
 fi
 
-cat $CONF | sed 's|%%USERNAME%%|$USERNAME|g' | sed 's|%%PASSWORD%%|$PASSWORD|g' > "$CONF".tmp
+cat $CONF | sed 's|%%USERNAME%%|'$USERNAME'|g' | sed 's|%%PASSWORD%%|'$PASSWORD'|g' > "$CONF".tmp
 
 cat "$CONF".tmp
