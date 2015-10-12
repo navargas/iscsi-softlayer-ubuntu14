@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # Initialize state
 URL='https://raw.githubusercontent.com/navargas/iscsi-softlayer-ubuntu14/master/iscsid.conf'
 MD5='b1519580ab38966bf89d90ad0a582f90'
@@ -7,10 +9,12 @@ USERNAME=$1
 PASSWORD=$2
 DISCOVERY=$3
 CONF="./iscsid.conf"
+DESTINATION="/etc/iscsi/iscsid.conf"
 
 # Validate command line arguments
 if [ -z $USERNAME ] || [ -z $PASSWORD ] || [ -z $DISCOVERY ]; then
-  echo 'Usage: curl https://.../run | bash -s "username" "password" "discovery url"'
+  echo 'Usage: read the script **before** piping into bash, then'
+  echo 'curl https://.../run | bash -s "username" "password" "discovery address"'
   exit 1
 fi
 
@@ -30,4 +34,25 @@ fi
 
 cat $CONF | sed 's|%%USERNAME%%|'$USERNAME'|g' | sed 's|%%PASSWORD%%|'$PASSWORD'|g' > "$CONF".tmp
 
-cat "$CONF".tmp
+if [ -f $DESTINATION ]; then
+  mv $DESTINATION "$DESTINATION".bak
+fi
+
+mv "$CONF".tmp $DESTINATION
+
+if [ $? -eq 0 ]; then
+  rm -f "$CONF".tmp
+  rm -f $CONF
+  echo $DESTINATION written successfully
+  exit 0
+else
+  echo Unable to write $DESTINATION
+  exit 4
+fi
+
+echo Enabling iSCSI
+apt-get install -y open-iscsi
+/etc/init.d/open-iscsi restart
+iscsiadm -m discovery -t sendtargets -p $DISCOVERY
+iscsiadm -m node -L automatic
+iscsiadm -m node --login
