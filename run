@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Initialize state
+URL='https://raw.githubusercontent.com/navargas/iscsi-softlayer-ubuntu14/master/iscsid.conf'
+MD5='b1519580ab38966bf89d90ad0a582f90'
+USERNAME=$1
+PASSWORD=$2
+DISCOVERY=$3
+CONF="./iscsid.conf"
+
+# Validate command line arguments
+if [ -z $USERNAME ] || [ -z $PASSWORD ] || [ -z $DISCOVERY ]; then
+  echo 'Usage: curl https://.../run | bash -s "username" "password" "discovery url"'
+  exit 1
+fi
+
+# Download configuration file template
+curl $URL > $CONF
+if [ $? -eq 0 ]; then
+  echo 'Unable to download config file'
+  exit 2
+fi
+
+# Make sure we are working from the full, correct file
+filecheck=$(cat $CONF | md5sum)
+if [ $filecheck != $MD5 ]; then
+  echo There was a problem downloading the config file
+  exit 3
+fi
+
+cat $CONF | sed 's|%%USERNAME%%|$USERNAME|g' | sed 's|%%PASSWORD%%|$PASSWORD|g' > "$CONF".tmp
+
+cat "$CONF".tmp
