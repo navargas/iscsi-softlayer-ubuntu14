@@ -9,14 +9,15 @@ USERNAME=$1
 PASSWORD=$2
 DISCOVERY=$3
 IQN=$4
+MOUNTPOINT=$5
 CONF="./iscsid.conf"
 DESTINATION="/etc/iscsi/iscsid.conf"
 INITIATOR="/etc/iscsi/initiatorname.iscsi"
 
 # Validate command line arguments
-if [ -z $USERNAME ] || [ -z $PASSWORD ] || [ -z $DISCOVERY ] || [ -z $IQN ]; then
+if [ -z $USERNAME ] || [ -z $PASSWORD ] || [ -z $DISCOVERY ] || [ -z $IQN ] || [ -z $MOUNTPOINT ]; then
   echo 'Usage: read the script **before** piping into bash, then'
-  echo 'curl https://.../run | bash -s "username" "password" "discovery address" "host IQN"'
+  echo 'curl https://.../run | bash -s "username" "password" "discovery address" "host IQN" "mountpoint"'
   exit 1
 fi
 
@@ -66,3 +67,15 @@ apt-get install -y open-iscsi
 iscsiadm -m discovery -t sendtargets -p $DISCOVERY
 iscsiadm -m node -L automatic
 iscsiadm -m node --login
+
+echo Mounting device
+mkdir $MOUNTPOINT
+DEVNAME=$(ls /dev/disk/by-path/ | grep $DISCOVERY | grep 'part1')
+if [ $(echo $DEVNAME | wc -l) -ne 1 ]; then
+  echo There was a problem finding the iSCSI device name
+  echo /dev/disk/by-path lists \"$DEVNAME\" which is
+  echo either empty or contains multiple values
+  exit 5
+fi
+DEV=/dev/disk/by-path/$DEVNAME
+mount $DEV $MOUNTPOINT
