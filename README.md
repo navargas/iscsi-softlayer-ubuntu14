@@ -1,5 +1,5 @@
 # iscsi-softlayer-ubuntu14
-#####Simple script to set up Softlayer iSCSI block storage on Ubuntu 14 machines
+##### Simple script to set up Softlayer iSCSI block storage on Ubuntu 14 machines
 
 ### NOTICE
 This script is provided without warranty. I needed something to automate the configuration of
