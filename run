@@ -68,16 +68,24 @@ iscsiadm -m discovery -t sendtargets -p $DISCOVERY
 iscsiadm -m node -L automatic
 iscsiadm -m node --login
 
-echo Mounting device
+echo Mounting device...
 mkdir $MOUNTPOINT
 # wait for /dev/disk/by-path/ to be populated
-sleep 2
-DEVNAME=$(ls /dev/disk/by-path/ | grep $DISCOVERY | grep 'part1')
-if [ $(echo $DEVNAME | wc -l) -ne 1 ]; then
-  echo There was a problem finding the iSCSI device name
-  echo /dev/disk/by-path lists \"$DEVNAME\" which is
-  echo either empty or contains multiple values
-  exit 5
+sleep 1
+dev_attempts=0
+while [ $dev_attempts -lt 30 ]; do
+  dev_attempts=$[ $dev_attempts + 1 ]
+  echo Attempt $dev_attempts
+  DEVNAME=$(ls /dev/disk/by-path/ | grep $DISCOVERY | grep 'part1' | head -n 1)
+  if [ ! -z $DEVNAME ]; then
+    echo $DEVNAME
+    break
+  fi
+  sleep 2
+done
+if [ -z $DEVNAME ]; then
+  echo Unable to find device
+  exit 6
 fi
 DEV=/dev/disk/by-path/$DEVNAME
 mount $DEV $MOUNTPOINT
