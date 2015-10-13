@@ -2,8 +2,8 @@
 #####Simple script to set up Softlayer iSCSI block storage on Ubuntu 14 machines
 
 ### NOTICE
-This script is provided without warrenty. I needed something to automate the configuration of
-serveral Ubuntu 14 nodes in a cluster of machines hosted on Softlayer. I can't promise that it
+This script is provided without warranty. I needed something to automate the configuration of
+several Ubuntu 14 nodes in a cluster of machines hosted on Softlayer. I can't promise that it
 will work on your configuration, and I can't imagine it will if your configuration does not
 match mine (softlayer, ubuntu 14.04, iscsi block storage also on softlayer).
 
